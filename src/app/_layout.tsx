@@ -1,6 +1,7 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import { useColorScheme } from 'react-native';
 
+import "@/global.css";
 import { Drawer } from 'expo-router/drawer';
 
 export default function TabLayout() {
