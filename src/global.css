@@ -12,4 +12,64 @@
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
   --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
   --font-serif: Georgia, 'Times New Roman', serif;
+
+  /* --- LIGHT MODE PALETTE (Sugerido para o App) --- */
+  --color-background: #F8F9FC;
+  --color-surface: #FFFFFF;
+  --color-primary-text: #1A1C24;
+  --color-secondary-text: #64687A;
+  --color-accent: #1AA34A; /* Verde Spotify ajustado para fundo claro */
+  --color-border: #E2E5F0;
+
+  /* --- DYNAMIC MOOD GRADIENTS (Tokens Globais) --- */
+  /* Nostalgic / Melancholic */
+  --color-nostalgic-from: #4C1D95;
+  --color-nostalgic-to: #2563EB;
+  
+  /* Peaceful / Focused */
+  --color-peaceful-from: #065F46;
+  --color-peaceful-to: #0D9488;
+  
+  /* Anxious / Agitated */
+  --color-anxious-from: #991B1B;
+  --color-anxious-to: #7C2D12;
+  
+  /* Radiant / Happy */
+  --color-radiant-from: #D97706;
+  --color-radiant-to: #DB2777;
+}
+
+/* --- DARK MODE OVERRIDES (Sugerido para o App - Padrão) --- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: #0D0E12;
+    --color-surface: #161820;
+    --color-primary-text: #FFFFFF;
+    --color-secondary-text: #8E93A6;
+    --color-accent: #1DB954; /* Verde Spotify Oficial */
+    --color-border: #242736;
+  }
+}
+
+/* Mapeamento de variáveis para a sintaxe @theme do Tailwind v4 */
+@theme {
+  --color-background: var(--color-background);
+  --color-surface: var(--color-surface);
+  --color-primary-text: var(--color-primary-text);
+  --color-secondary-text: var(--color-secondary-text);
+  --color-accent: var(--color-accent);
+  --color-border: var(--color-border);
+
+  /* Gradientes expostos para utilitários do Tailwind */
+  --color-nostalgic-from: var(--color-nostalgic-from);
+  --color-nostalgic-to: var(--color-nostalgic-to);
+  
+  --color-peaceful-from: var(--color-peaceful-from);
+  --color-peaceful-to: var(--color-peaceful-to);
+  
+  --color-anxious-from: var(--color-anxious-from);
+  --color-anxious-to: var(--color-anxious-to);
+  
+  --color-radiant-from: var(--color-radiant-from);
+  --color-radiant-to: var(--color-radiant-to);
 }
