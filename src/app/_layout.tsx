@@ -1,8 +1,16 @@
-import { DarkTheme, DefaultTheme, ThemeProvider, useRouter, useSegments } from 'expo-router';
+import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider, useRouter, useSegments } from 'expo-router';
 import { StatusBar, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 
+import { Colors } from '@/constants/theme';
 import "@/global.css";
 import { useTheme } from '@/hooks/use-theme';
+import {
+  ThemeMode,
+  ThemeProvider as ThemeSwitchProvider,
+} from '@/shared/ui/organisms/theme-switch/context';
+import { useTheme as useThemeSwitch } from '@/shared/ui/organisms/theme-switch/hooks';
+import { AnimationType } from '@/shared/ui/organisms/theme-switch/types';
+import { Feather } from '@expo/vector-icons';
 import { Drawer } from 'expo-router/drawer';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -14,18 +22,33 @@ const NAV_ITEMS = [
 ] as const;
 
 export default function TabLayout() {
+  const colorScheme = useColorScheme();
+  const defaultTheme = colorScheme === 'dark' ? ThemeMode.Dark : ThemeMode.Light;
+
+  return (
+    <ThemeSwitchProvider
+      defaultTheme={defaultTheme}
+      customLightColors={Colors.light}
+      customDarkColors={Colors.dark}
+    >
+      <DrawerLayout />
+    </ThemeSwitchProvider>
+  );
+}
+
+function DrawerLayout() {
   const router = useRouter();
   const segments = useSegments();
 
-  const colorScheme = useColorScheme();
   const { background, backgroundElement, primary, text } = useTheme();
+  const { isDark, toggleTheme } = useThemeSwitch();
 
   const { top, bottom } = useSafeAreaInsets();
   const activeRoute = segments[segments.length - 1] ?? 'index';
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} />
+    <NavigationThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       <Drawer
         drawerContent={() => (
           <View className='flex-1' style={{ marginTop: top, marginBottom: bottom }}>
@@ -40,15 +63,14 @@ export default function TabLayout() {
                       // styles.item,
                       isActive && { backgroundColor: primary },
                     ]}
-                    className='mx-4 p-4 flex-row items-center justify-between rounded-full'
+                    className='mx-4 p-4 flex-row items-center gap-4 rounded-full'
                     activeOpacity={0.7}
                   >
-                    {/* <Feather
+                    <Feather
                           name={icon}
                           size={20}
-                          color={isActive ? '#fff' : textSecondary}
-                          style={styles.icon}
-                        /> */}
+                          color={isActive ? '#fff' : text}
+                        />
                     <Text style={[
                       { color: isActive ? '#fff' : text },
                       isActive && { color: '#fff' },
@@ -59,8 +81,31 @@ export default function TabLayout() {
                 );
               })}
             </View>
-            <View>
-              <Text className='text-primary-text'>Drawer</Text>
+            <View className='px-4 pb-4'>
+              <TouchableOpacity
+                onPress={(event) =>
+                  toggleTheme({
+                    animationType: isDark
+                      ? AnimationType.CircularInverted
+                      : AnimationType.Circular,
+                    touchX: event.nativeEvent.pageX,
+                    touchY: event.nativeEvent.pageY,
+                  })
+                }
+                activeOpacity={0.7}
+                className='h-12 w-12 items-center justify-center rounded-full'
+                style={{
+                  backgroundColor: background,
+                  borderColor: primary,
+                  borderWidth: 1,
+                }}
+              >
+                <Feather
+                  name={isDark ? "sun" : "moon"}
+                  color={primary}
+                  size={20}
+                />
+              </TouchableOpacity>
             </View>
           </View>
         )}
@@ -96,6 +141,6 @@ export default function TabLayout() {
           }}
         />
       </Drawer>
-    </ThemeProvider>
+    </NavigationThemeProvider>
   );
 }

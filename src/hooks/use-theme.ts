@@ -4,11 +4,12 @@
  */
 
 import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useTheme as useThemeSwitch } from '@/shared/ui/organisms/theme-switch/hooks';
+import { ThemeMode } from '@/shared/ui/organisms/theme-switch/types';
 
 export function useTheme() {
-  const scheme = useColorScheme();
-  const theme = scheme === 'unspecified' ? 'light' : scheme;
+  const { theme } = useThemeSwitch();
+  const scheme = theme === ThemeMode.Dark ? 'dark' : 'light';
 
-  return Colors[theme];
+  return Colors[scheme];
 }
