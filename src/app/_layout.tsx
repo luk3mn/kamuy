@@ -11,6 +11,7 @@ import {
 import { useTheme as useThemeSwitch } from '@/shared/ui/organisms/theme-switch/hooks';
 import { AnimationType } from '@/shared/ui/organisms/theme-switch/types';
 import { Feather } from '@expo/vector-icons';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Drawer } from 'expo-router/drawer';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -20,6 +21,17 @@ const NAV_ITEMS = [
   { label: 'Mood Analytics', route: 'explore', icon: 'activity' },
   // { label: 'Settings', route: 'settings', icon: 'settings' },
 ] as const;
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 2,
+      staleTime: 300000,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: true,
+    },
+  },
+});
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -47,100 +59,102 @@ function DrawerLayout() {
   const activeRoute = segments[segments.length - 1] ?? 'index';
 
   return (
-    <NavigationThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
-      <Drawer
-        drawerContent={() => (
-          <View className='flex-1' style={{ marginTop: top, marginBottom: bottom }}>
-            <View className='flex-1'>
-              {NAV_ITEMS.map(({ label, route, icon }) => {
-                const isActive = activeRoute === route;
-                return (
-                  <TouchableOpacity
-                    key={route}
-                    onPress={() => router.push(`/${route === 'index' ? '' : route}`)}
-                    style={[
-                      // styles.item,
-                      isActive && { backgroundColor: primary },
-                    ]}
-                    className='mx-4 p-4 flex-row items-center gap-4 rounded-full'
-                    activeOpacity={0.7}
-                  >
-                    <Feather
-                          name={icon}
-                          size={20}
-                          color={isActive ? '#fff' : text}
-                        />
-                    <Text style={[
-                      { color: isActive ? '#fff' : text },
-                      isActive && { color: '#fff' },
-                    ]} className='text-lg font-semibold'>
-                      {label}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
+    <QueryClientProvider client={queryClient}>
+      <NavigationThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
+        <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+        <Drawer
+          drawerContent={() => (
+            <View className='flex-1' style={{ marginTop: top, marginBottom: bottom }}>
+              <View className='flex-1'>
+                {NAV_ITEMS.map(({ label, route, icon }) => {
+                  const isActive = activeRoute === route;
+                  return (
+                    <TouchableOpacity
+                      key={route}
+                      onPress={() => router.push(`/${route === 'index' ? '' : route}`)}
+                      style={[
+                        // styles.item,
+                        isActive && { backgroundColor: primary },
+                      ]}
+                      className='mx-4 p-4 flex-row items-center gap-4 rounded-full'
+                      activeOpacity={0.7}
+                    >
+                      <Feather
+                            name={icon}
+                            size={20}
+                            color={isActive ? '#fff' : text}
+                          />
+                      <Text style={[
+                        { color: isActive ? '#fff' : text },
+                        isActive && { color: '#fff' },
+                      ]} className='text-lg font-semibold'>
+                        {label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+              <View className='px-4 pb-4'>
+                <TouchableOpacity
+                  onPress={(event) =>
+                    toggleTheme({
+                      animationType: isDark
+                        ? AnimationType.CircularInverted
+                        : AnimationType.Circular,
+                      touchX: event.nativeEvent.pageX,
+                      touchY: event.nativeEvent.pageY,
+                    })
+                  }
+                  activeOpacity={0.7}
+                  className='h-12 w-12 items-center justify-center rounded-full'
+                  style={{
+                    backgroundColor: background,
+                    borderColor: primary,
+                    borderWidth: 1,
+                  }}
+                >
+                  <Feather
+                    name={isDark ? "sun" : "moon"}
+                    color={primary}
+                    size={20}
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
-            <View className='px-4 pb-4'>
-              <TouchableOpacity
-                onPress={(event) =>
-                  toggleTheme({
-                    animationType: isDark
-                      ? AnimationType.CircularInverted
-                      : AnimationType.Circular,
-                    touchX: event.nativeEvent.pageX,
-                    touchY: event.nativeEvent.pageY,
-                  })
-                }
-                activeOpacity={0.7}
-                className='h-12 w-12 items-center justify-center rounded-full'
-                style={{
-                  backgroundColor: background,
-                  borderColor: primary,
-                  borderWidth: 1,
-                }}
-              >
-                <Feather
-                  name={isDark ? "sun" : "moon"}
-                  color={primary}
-                  size={20}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-        screenOptions={{
-          headerTitle: () => null,
-          headerBackground: () => null,
-          headerBackgroundContainerStyle: {
-            backgroundColor: background,
-          },
-          drawerType: 'front',
-        }}
-      >
-        <Drawer.Screen
-          name="index"
-          options={{
-            title: 'Home',
-            drawerStyle: {
-              backgroundColor: backgroundElement,
+          )}
+          screenOptions={{
+            headerTitle: () => null,
+            headerBackground: () => null,
+            headerBackgroundContainerStyle: {
+              backgroundColor: background,
             },
-            drawerActiveTintColor: primary,
-            drawerInactiveTintColor: text
+            drawerType: 'front',
           }}
-        />
-        <Drawer.Screen
-          name="explore"
-          options={{
-            title: 'Insights',
-            drawerStyle: {
-              backgroundColor: backgroundElement,
-            },
-            drawerActiveTintColor: primary,
-            drawerInactiveTintColor: text
-          }}
-        />
-      </Drawer>
-    </NavigationThemeProvider>
+        >
+          <Drawer.Screen
+            name="index"
+            options={{
+              title: 'Home',
+              drawerStyle: {
+                backgroundColor: backgroundElement,
+              },
+              drawerActiveTintColor: primary,
+              drawerInactiveTintColor: text
+            }}
+          />
+          <Drawer.Screen
+            name="explore"
+            options={{
+              title: 'Insights',
+              drawerStyle: {
+                backgroundColor: backgroundElement,
+              },
+              drawerActiveTintColor: primary,
+              drawerInactiveTintColor: text
+            }}
+          />
+        </Drawer>
+      </NavigationThemeProvider>
+    </QueryClientProvider>
   );
 }
