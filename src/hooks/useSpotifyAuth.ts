@@ -1,12 +1,12 @@
 import { useAuthStore } from '@/stores/auth.store';
+import type { SpotifyTokens } from '@/types/spotify';
 import {
-    CodeChallengeMethod,
-    makeRedirectUri,
-    useAuthRequest
+  CodeChallengeMethod,
+  makeRedirectUri,
+  useAuthRequest
 } from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
 import { useCallback, useEffect } from 'react';
-import type { SpotifyTokens } from '../types/spotify';
 
 WebBrowser.maybeCompleteAuthSession();
 

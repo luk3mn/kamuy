@@ -1,4 +1,6 @@
+import { apiClient } from "@/lib/api-client";
 import { useAuthStore } from "@/stores/auth.store";
+import { SpotifyUser } from "@/types/spotify";
 
 const CLIENT_ID = process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_ID!;
 const CLIENT_SECRET = process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_SECRET!;
@@ -17,6 +19,11 @@ async function persistAuthData(data: SpotifyTokenResponse): Promise<void> {
     expiresAt: Date.now() + data.expires_in * 1000,
   });
 }
+
+// export const getMyProfile = (token: string): Promise<SpotifyUser> => apiClient<SpotifyUser>('/me', token);
+export const userService = {
+  getMe: (token: string) => apiClient.get<SpotifyUser>("/me", { token }),
+};
 
 export const authService = {
   signIn: async (): Promise<SpotifyTokenResponse> => {
