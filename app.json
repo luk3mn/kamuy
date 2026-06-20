@@ -8,7 +8,8 @@
     "scheme": "kamuy",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "com.luk3mn.kamuy"
     },
     "android": {
       "adaptiveIcon": {
@@ -36,7 +37,8 @@
           }
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

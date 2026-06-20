@@ -29,8 +29,8 @@ async function request<T>(
     return fetch(`${ENDPOINT_URL}/v1${endpoint}`, {
       ...options,
       headers: {
+        Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
-        ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
         ...options.headers,
       },
     });
@@ -41,14 +41,18 @@ async function request<T>(
     let response = await makeRequest(accessToken);
     console.log("[DEFAULT REQUEST] Response", response.status);
 
-    if (!response.ok) {
-      const errorBody = await response.json().catch(() => ({}));
-      return {
-        data: null,
-        error: errorBody?.message ?? "Request failed",
-        status: response.status,
-      };
-    }
+    if (response.status === 401) throw new Error('UNAUTHORIZED');
+    if (response.status === 429) throw new Error('RATE_LIMITED');
+    if (!response.ok) throw new Error(`Spotify API error: ${response.status}`);
+
+    // if (!response.ok) {
+    //   const errorBody = await response.json().catch(() => ({}));
+    //   return {
+    //     data: null,
+    //     error: errorBody?.message ?? "Request failed",
+    //     status: response.status,
+    //   };
+    // }
 
     const json = await response.json();
     return { data: json?.data ?? json, error: null, status: response.status };

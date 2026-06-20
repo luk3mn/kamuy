@@ -1,9 +1,12 @@
 import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider, useRouter, useSegments } from 'expo-router';
 import { StatusBar, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/theme';
 import "@/global.css";
 import { useTheme } from '@/hooks/use-theme';
+import { useSpotifyAuth } from '@/hooks/useSpotifyAuth';
 import {
   ThemeMode,
   ThemeProvider as ThemeSwitchProvider,
@@ -51,6 +54,7 @@ export default function TabLayout() {
 function DrawerLayout() {
   const router = useRouter();
   const segments = useSegments();
+  const { login, getValidToken, isReady } = useSpotifyAuth();
 
   const { background, backgroundElement, primary, text } = useTheme();
   const { isDark, toggleTheme } = useThemeSwitch();
@@ -62,98 +66,107 @@ function DrawerLayout() {
     <QueryClientProvider client={queryClient}>
       <NavigationThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
         <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
-        <Drawer
-          drawerContent={() => (
-            <View className='flex-1' style={{ marginTop: top, marginBottom: bottom }}>
-              <View className='flex-1'>
-                {NAV_ITEMS.map(({ label, route, icon }) => {
-                  const isActive = activeRoute === route;
-                  return (
-                    <TouchableOpacity
-                      key={route}
-                      onPress={() => router.push(`/${route === 'index' ? '' : route}`)}
-                      style={[
-                        // styles.item,
-                        isActive && { backgroundColor: primary },
-                      ]}
-                      className='mx-4 p-4 flex-row items-center gap-4 rounded-full'
-                      activeOpacity={0.7}
-                    >
-                      <Feather
-                            name={icon}
-                            size={20}
-                            color={isActive ? '#fff' : text}
-                          />
-                      <Text style={[
-                        { color: isActive ? '#fff' : text },
-                        isActive && { color: '#fff' },
-                      ]} className='text-lg font-semibold'>
-                        {label}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
+        {isReady ? (
+          <Drawer
+            drawerContent={() => (
+              <View className='flex-1' style={{ marginTop: top, marginBottom: bottom }}>
+                <View className='flex-1'>
+                  {NAV_ITEMS.map(({ label, route, icon }) => {
+                    const isActive = activeRoute === route;
+                    return (
+                      <TouchableOpacity
+                        key={route}
+                        onPress={() => router.push(`/${route === 'index' ? '' : route}`)}
+                        style={[
+                          // styles.item,
+                          isActive && { backgroundColor: primary },
+                        ]}
+                        className='mx-4 p-4 flex-row items-center gap-4 rounded-full'
+                        activeOpacity={0.7}
+                      >
+                        <Feather
+                          name={icon}
+                          size={20}
+                          color={isActive ? '#fff' : text}
+                        />
+                        <Text style={[
+                          { color: isActive ? '#fff' : text },
+                          isActive && { color: '#fff' },
+                        ]} className='text-lg font-semibold'>
+                          {label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+                <View className='px-4 pb-4'>
+                  <TouchableOpacity
+                    onPress={(event) =>
+                      toggleTheme({
+                        animationType: isDark
+                          ? AnimationType.CircularInverted
+                          : AnimationType.Circular,
+                        touchX: event.nativeEvent.pageX,
+                        touchY: event.nativeEvent.pageY,
+                      })
+                    }
+                    activeOpacity={0.7}
+                    className='h-12 w-12 items-center justify-center rounded-full'
+                    style={{
+                      backgroundColor: background,
+                      borderColor: primary,
+                      borderWidth: 1,
+                    }}
+                  >
+                    <Feather
+                      name={isDark ? "sun" : "moon"}
+                      color={primary}
+                      size={20}
+                    />
+                  </TouchableOpacity>
+                </View>
               </View>
-              <View className='px-4 pb-4'>
-                <TouchableOpacity
-                  onPress={(event) =>
-                    toggleTheme({
-                      animationType: isDark
-                        ? AnimationType.CircularInverted
-                        : AnimationType.Circular,
-                      touchX: event.nativeEvent.pageX,
-                      touchY: event.nativeEvent.pageY,
-                    })
-                  }
-                  activeOpacity={0.7}
-                  className='h-12 w-12 items-center justify-center rounded-full'
-                  style={{
-                    backgroundColor: background,
-                    borderColor: primary,
-                    borderWidth: 1,
-                  }}
-                >
-                  <Feather
-                    name={isDark ? "sun" : "moon"}
-                    color={primary}
-                    size={20}
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
-          screenOptions={{
-            headerTitle: () => null,
-            headerBackground: () => null,
-            headerBackgroundContainerStyle: {
-              backgroundColor: background,
-            },
-            drawerType: 'front',
-          }}
-        >
-          <Drawer.Screen
-            name="index"
-            options={{
-              title: 'Home',
-              drawerStyle: {
-                backgroundColor: backgroundElement,
+            )}
+            screenOptions={{
+              headerTitle: () => null,
+              headerBackground: () => null,
+              headerBackgroundContainerStyle: {
+                backgroundColor: background,
               },
-              drawerActiveTintColor: primary,
-              drawerInactiveTintColor: text
+              drawerType: 'front',
             }}
-          />
-          <Drawer.Screen
-            name="explore"
-            options={{
-              title: 'Insights',
-              drawerStyle: {
-                backgroundColor: backgroundElement,
-              },
-              drawerActiveTintColor: primary,
-              drawerInactiveTintColor: text
-            }}
-          />
-        </Drawer>
+          >
+            <Drawer.Screen
+              name="index"
+              options={{
+                title: 'Home',
+                drawerStyle: {
+                  backgroundColor: backgroundElement,
+                },
+                drawerActiveTintColor: primary,
+                drawerInactiveTintColor: text
+              }}
+            />
+            <Drawer.Screen
+              name="explore"
+              options={{
+                title: 'Insights',
+                drawerStyle: {
+                  backgroundColor: backgroundElement,
+                },
+                drawerActiveTintColor: primary,
+                drawerInactiveTintColor: text
+              }}
+            />
+          </Drawer>
+        ) : (
+          <ThemedView className="flex-1">
+            <View className="flex-1"></View>
+            <TouchableOpacity onPress={login} disabled={!isReady} className="bg-accent mb-14 rounded-2xl w-2/3 h-16 items-center justify-center self-center">
+              <ThemedText>Login com Spotify</ThemedText>
+            </TouchableOpacity>
+          </ThemedView>
+        )}
       </NavigationThemeProvider>
     </QueryClientProvider>
   );
