@@ -6,7 +6,7 @@ import {
   useAuthRequest
 } from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -49,8 +49,11 @@ export function useSpotifyAuth(): UseSpotifyAuthReturn {
     discovery
   );
 
+  const codeExchangedRef = useRef(false);
+
   useEffect(() => {
-    if (response?.type === 'success' && request?.codeVerifier) {
+    if (response?.type === 'success' && request?.codeVerifier && !codeExchangedRef.current) {
+      codeExchangedRef.current = true;
       exchangeCode(response.params.code, request.codeVerifier);
     }
   }, [response]);

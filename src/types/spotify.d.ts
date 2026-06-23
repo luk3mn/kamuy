@@ -51,14 +51,27 @@ export interface SpotifyPlaylist {
   external_urls: { spotify: string };
   owner: { display_name: string };
 }
-
+export interface SpotifyCursors {
+  after: string;
+  before: string;
+}
 export interface SpotifyPaginatedResponse<T> {
+  href: string;
   items: T[];
   total: number;
   limit: number;
   offset: number;
   next: string | null;
   previous: string | null;
+}
+
+// Cursor-based pagination (recently-played, play history, etc.)
+export interface SpotifyCursorPaginatedResponse<T> {
+  href: string;
+  items: T[];
+  limit: number;
+  next: string | null;
+  cursors: SpotifyCursors;
 }
 
 export type TimeRange = 'short_term' | 'medium_term' | 'long_term';

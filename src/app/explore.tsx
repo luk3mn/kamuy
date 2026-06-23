@@ -3,9 +3,24 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { useRecentlyPlayedTracks } from '@/hooks/api/use-player';
 import { useTheme } from '@/hooks/use-theme';
+import { useMemo } from 'react';
 
 export default function ExploreScreen() {
+  const { data: songs, error: errorSongs, refetch: refreshSongs } = useRecentlyPlayedTracks();
+  // console.log("..........", songs?.items[0].played_at)
+
+  const tracks = useMemo(() => {
+    return songs?.items.map(({ track }) => ({
+      name: track.name,
+      artists: track.artists,
+      images: track.album.images,
+      preview_url: track.preview_url
+    }))
+  }, [songs])
+  console.log(tracks)
+
   const safeAreaInsets = useSafeAreaInsets();
   const insets = {
     ...safeAreaInsets,

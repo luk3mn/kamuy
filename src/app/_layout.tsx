@@ -22,8 +22,8 @@ import { useCallback, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const NAV_ITEMS = [
-  { label: 'Today', route: 'index', icon: 'calendar' },
-  { label: 'Mood Analytics', route: 'explore', icon: 'activity' },
+  { label: 'Hoje', route: 'index', icon: 'calendar' },
+  { label: 'Explorar', route: 'explore', icon: 'activity' },
 ] as const;
 
 const queryClient = new QueryClient({
