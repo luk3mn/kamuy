@@ -12,7 +12,7 @@ interface SpotifyTokenResponse {
 }
 
 async function persistAuthData(data: SpotifyTokenResponse): Promise<void> {
-  useAuthStore.getState().setTokens({
+  useAuthStore.getState().setSpotifyTokens({
     accessToken: data.access_token,
     refreshToken: null,          // Client Credentials doesn't provide a refresh token
     expiresIn: data.expires_in,
@@ -22,7 +22,7 @@ async function persistAuthData(data: SpotifyTokenResponse): Promise<void> {
 
 // export const getMyProfile = (token: string): Promise<SpotifyUser> => apiClient<SpotifyUser>('/me', token);
 export const userService = {
-  getMe: (token: string) => apiClient.get<SpotifyUser>("/me", { token }),
+  getMe: () => apiClient.get<SpotifyUser>("/me"),
 };
 
 export const authService = {

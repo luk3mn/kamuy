@@ -1,47 +1,48 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { useSpotifyAuth } from "@/hooks/useSpotifyAuth";
-import { SpotifyTrack, SpotifyUser } from "@/types/spotify";
+import { signInWithGoogle } from "@/services/googleAuth";
+import { AntDesign } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 
 export default function Auth() {
-    const { login, getValidToken, isReady } = useSpotifyAuth();
-    const [user, setUser] = useState<SpotifyUser | null>(null);
-    const [tracks, setTracks] = useState<SpotifyTrack[]>([]);
+    const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    console.log(isReady)
 
-    // const scope = 'user-read-private user-read-email user-read-playback-state user-read-currently-playing user-read-recently-played';
-
-    const loadData = useCallback(async () => {
+    const handleSignIn = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
-            // const token = await getValidToken();
-            // if (!token) return;
-
-            // const [profile, topTracks] = await Promise.all([
-            //     getMyProfile(token),
-            //     getMyTopTracks(token, 'short_term', 10),
-            // ]);
-
-            // setUser(profile);
-            // setTracks(topTracks.items);
+            await signInWithGoogle();
+            router.replace("/");
         } catch (e) {
-            setError(e instanceof Error ? e.message : 'Something went wrong');
+            setError(e instanceof Error ? e.message : "Falha ao entrar com Google");
         } finally {
             setLoading(false);
         }
-    }, [getValidToken]);
+    }, [router]);
 
     return (
-        <ThemedView className="flex-1">
+        <ThemedView className="flex-1 px-8">
             <View className="flex-1"></View>
-            <TouchableOpacity onPress={login} disabled={!isReady} className="bg-accent mb-14 rounded-2xl w-2/3 h-16 items-center justify-center self-center">
-                <ThemedText>Login com Spotify</ThemedText>
+            <TouchableOpacity
+                onPress={handleSignIn}
+                disabled={loading}
+                className="bg-primary mb-3 rounded-2xl w-full h-16 flex-row gap-3 items-center justify-center self-center"
+                style={{ opacity: loading ? 0.7 : 1 }}
+            >
+                <AntDesign name="google" size={20} color="#fff" />
+                <ThemedText>{loading ? "Entrando..." : "Entrar com Google"}</ThemedText>
             </TouchableOpacity>
+            {error ? (
+                <Text className="mb-10 text-center text-sm" style={{ color: "#f44" }}>
+                    {error}
+                </Text>
+            ) : (
+                <View className="mb-10" />
+            )}
         </ThemedView>
     )
 }

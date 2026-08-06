@@ -8,12 +8,12 @@ export const userKeys = {
 };
 
 export function useMe() {
-  const accessToken = useAuthStore((s) => s.accessToken); // ← from store, no prop needed
+  const accessToken = useAuthStore((s) => s.spotifyAccessToken);
 
   return useQuery({
     queryKey: userKeys.me,
     queryFn: async () => {
-      const { data, error } = await userService.getMe(accessToken!);
+      const { data, error } = await userService.getMe();
       if (error) throw new Error(error);
       return data;
     },

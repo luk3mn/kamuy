@@ -14,55 +14,52 @@ const secureStorage = {
 import type { SpotifyTokens } from "../types/spotify";
 
 interface AuthState {
-  accessToken: string | null;
-  refreshToken: string | null;
-  expiresAt: number | null;
-  expiresIn: number | null;
-  isAuthenticated: boolean;
+  spotifyAccessToken: string | null;
+  spotifyRefreshToken: string | null;
+  spotifyExpiresAt: number | null;
+  spotifyExpiresIn: number | null;
+  isSpotifyConnected: boolean;
 
-  setTokens: (tokens: SpotifyTokens) => void;
-  setIsAuthenticated: (value: boolean) => void;
-  isTokenExpired: () => boolean;
-  logout: () => void;
+  setSpotifyTokens: (tokens: SpotifyTokens) => void;
+  isSpotifyTokenExpired: () => boolean;
+  clearSpotifyTokens: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
-      accessToken: null,
-      refreshToken: null,
-      expiresAt: null,
-      expiresIn: null,
-      isAuthenticated: false,
+      spotifyAccessToken: null,
+      spotifyRefreshToken: null,
+      spotifyExpiresAt: null,
+      spotifyExpiresIn: null,
+      isSpotifyConnected: false,
 
-      setTokens: ({ accessToken, refreshToken, expiresIn, expiresAt }: SpotifyTokens) =>
+      setSpotifyTokens: ({ accessToken, refreshToken, expiresIn, expiresAt }: SpotifyTokens) =>
         set({
-          accessToken,
-          refreshToken,
-          expiresIn,
-          expiresAt,
-          isAuthenticated: true,
+          spotifyAccessToken: accessToken,
+          spotifyRefreshToken: refreshToken,
+          spotifyExpiresIn: expiresIn,
+          spotifyExpiresAt: expiresAt,
+          isSpotifyConnected: true,
         }),
 
-      setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
-
-      isTokenExpired: () => {
-        const { expiresAt } = get();
-        if (!expiresAt) return true;
-        return Date.now() >= expiresAt - 60_000; // 1 min buffer
+      isSpotifyTokenExpired: () => {
+        const { spotifyExpiresAt } = get();
+        if (!spotifyExpiresAt) return true;
+        return Date.now() >= spotifyExpiresAt - 60_000; // 1 min buffer
       },
 
-      logout: () =>
+      clearSpotifyTokens: () =>
         set({
-          accessToken: null,
-          refreshToken: null,
-          expiresAt: null,
-          expiresIn: null,
-          isAuthenticated: false,
+          spotifyAccessToken: null,
+          spotifyRefreshToken: null,
+          spotifyExpiresAt: null,
+          spotifyExpiresIn: null,
+          isSpotifyConnected: false,
         }),
     }),
     {
-      name: "auth-storage",
+      name: "spotify-auth-storage",
       storage: createJSONStorage(() => secureStorage),
     }
   )

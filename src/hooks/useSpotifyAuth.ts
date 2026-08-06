@@ -34,7 +34,12 @@ interface UseSpotifyAuthReturn {
 }
 
 export function useSpotifyAuth(): UseSpotifyAuthReturn {
-  const { setTokens, accessToken, refreshToken, isTokenExpired } = useAuthStore();
+  const {
+    setSpotifyTokens,
+    spotifyAccessToken,
+    spotifyRefreshToken,
+    isSpotifyTokenExpired,
+  } = useAuthStore();
 
   const redirectUri = makeRedirectUri({ scheme: 'kamuy', path: 'callback' });
 
@@ -74,7 +79,7 @@ export function useSpotifyAuth(): UseSpotifyAuthReturn {
     if (!res.ok) throw new Error(`Token exchange failed: ${res.status}`);
 
     const data = await res.json();
-    setTokens({
+    setSpotifyTokens({
       accessToken: data.access_token,
       refreshToken: data.refresh_token,
       expiresIn: data.expires_in,
@@ -102,20 +107,20 @@ export function useSpotifyAuth(): UseSpotifyAuthReturn {
       expiresIn: data.expires_in,
       expiresAt: Date.now() + data.expires_in * 1000,
     };
-    setTokens(tokens);
+    setSpotifyTokens(tokens);
     return tokens;
   }
 
   const getValidToken = useCallback(async (): Promise<string | null> => {
-    if (!accessToken || !refreshToken) return null;
+    if (!spotifyAccessToken || !spotifyRefreshToken) return null;
 
-    if (isTokenExpired()) {
-      const refreshed = await refreshAccessToken(refreshToken);
+    if (isSpotifyTokenExpired()) {
+      const refreshed = await refreshAccessToken(spotifyRefreshToken);
       return refreshed.accessToken;
     }
 
-    return accessToken;
-  }, [accessToken, refreshToken, isTokenExpired]);
+    return spotifyAccessToken;
+  }, [spotifyAccessToken, spotifyRefreshToken, isSpotifyTokenExpired]);
 
   const login = useCallback(async () => {
     await promptAsync();

@@ -3,13 +3,13 @@ import { useAuthStore } from '@/stores/auth.store';
 export const ENDPOINT_URL = 'https://api.spotify.com/v1';
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<{ data: T | null; error: string | null }> {
-  const { accessToken } = useAuthStore.getState();
+  const { spotifyAccessToken } = useAuthStore.getState();
 
   try {
     const res = await fetch(`${ENDPOINT_URL}${path}`, {
       ...options,
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
+        'Authorization': `Bearer ${spotifyAccessToken}`,
         'Content-Type': 'application/json',
         ...options.headers,
       },
