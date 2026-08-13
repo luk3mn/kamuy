@@ -1,6 +1,7 @@
 import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider, useRouter, useSegments } from 'expo-router';
-import { ActivityIndicator, Image, StatusBar, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { ActivityIndicator, StatusBar, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 
+import { HeroDrawerContent } from '@/components/hero-drawer-content';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/theme';
@@ -16,17 +17,11 @@ import {
 import { useTheme as useThemeSwitch } from '@/shared/ui/organisms/theme-switch/hooks';
 import { AnimationType } from '@/shared/ui/organisms/theme-switch/types';
 import { useAuthStore } from '@/stores/auth.store';
-import { AntDesign, Entypo, Feather } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 import { getAuth, onAuthStateChanged, User } from '@react-native-firebase/auth';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Drawer } from 'expo-router/drawer';
 import { useCallback, useEffect, useState } from 'react';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-const NAV_ITEMS = [
-  { label: 'Hoje', route: 'index', icon: 'calendar' },
-  { label: 'Explorar', route: 'explore', icon: 'activity' },
-] as const;
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -92,7 +87,6 @@ function DrawerLayout() {
 
   const { background, backgroundElement, primary, text } = useTheme();
   const { isDark, toggleTheme } = useThemeSwitch();
-  const { top, bottom } = useSafeAreaInsets();
   const activeRoute = segments[segments.length - 1] ?? 'index';
 
   const handleGoogleSignIn = useCallback(async () => {
@@ -124,119 +118,34 @@ function DrawerLayout() {
       ) : firebaseUser ? (
         <Drawer
           drawerContent={() => (
-            <View className='flex-1' style={{ marginTop: top, marginBottom: bottom }}>
-
-              <View className='px-6 py-5 flex-row items-center gap-3 mb-2'>
-                {(profile?.images?.[0]?.url || firebaseUser.photoURL) ? (
-                  <Image
-                    source={{ uri: profile?.images?.[0]?.url ?? firebaseUser.photoURL! }}
-                    className='w-12 h-12 rounded-full'
-                  />
-                ) : (
-                  <View
-                    className='w-12 h-12 rounded-full items-center justify-center'
-                    style={{ backgroundColor: primary }}
-                  >
-                    <Feather name='user' size={22} color='#fff' />
-                  </View>
-                )}
-                <View className='flex-1'>
-                  <Text
-                    style={{ color: text }}
-                    className='font-bold text-base'
-                    numberOfLines={1}
-                  >
-                    {profile?.display_name ?? firebaseUser.displayName ?? 'Kamuy Hero'}
-                  </Text>
-                  <Text
-                    style={{ color: text, opacity: 0.5 }}
-                    className='text-xs'
-                    numberOfLines={1}
-                  >
-                    {profile?.email ?? firebaseUser.email ?? ''}
-                  </Text>
-                </View>
-              </View>
-
-              <View className='px-4 mb-4'>
-                <TouchableOpacity
-                  onPress={login}
-                  disabled={!isReady || isSpotifyConnected}
-                  activeOpacity={0.7}
-                  className='h-12 px-4 flex-row items-center justify-center gap-2 rounded-full'
-                  style={{
-                    backgroundColor: isSpotifyConnected ? background : '#1DB954',
-                    borderColor: isSpotifyConnected ? '#1DB954' : 'transparent',
-                    borderWidth: 1,
-                    opacity: !isReady && !isSpotifyConnected ? 0.5 : 1,
-                  }}
-                >
-                  <Entypo name='spotify' size={18} color={isSpotifyConnected ? '#1DB954' : '#fff'} />
-                  <Text
-                    style={{ color: isSpotifyConnected ? '#1DB954' : '#fff' }}
-                    className='font-semibold'
-                  >
-                    {isSpotifyConnected ? 'Spotify conectado' : 'Conectar Spotify'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              <View className='flex-1'>
-                {NAV_ITEMS.map(({ label, route, icon }) => {
-                  const isActive = activeRoute === route;
-                  return (
-                    <TouchableOpacity
-                      key={route}
-                      onPress={() => router.push(`/${route === 'index' ? '' : route}`)}
-                      style={[isActive && { backgroundColor: primary }]}
-                      className='mx-4 p-4 flex-row items-center gap-4 rounded-full'
-                      activeOpacity={0.7}
-                    >
-                      <Feather name={icon} size={20} color={isActive ? '#fff' : text} />
-                      <Text
-                        style={{ color: isActive ? '#fff' : text }}
-                        className='text-lg font-semibold'
-                      >
-                        {label}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-
-              <View className='px-4 pb-4 flex-row items-center justify-between'>
-                <TouchableOpacity
-                  onPress={(event) =>
-                    toggleTheme({
-                      animationType: isDark ? AnimationType.CircularInverted : AnimationType.Circular,
-                      touchX: event.nativeEvent.pageX,
-                      touchY: event.nativeEvent.pageY,
-                    })
-                  }
-                  activeOpacity={0.7}
-                  className='h-12 w-12 items-center justify-center rounded-full'
-                  style={{ backgroundColor: background, borderColor: primary, borderWidth: 1 }}
-                >
-                  <Feather name={isDark ? 'sun' : 'moon'} color={primary} size={20} />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={handleLogout}
-                  activeOpacity={0.7}
-                  className='h-12 w-12 items-center justify-center rounded-full'
-                  style={{ backgroundColor: background, borderColor: '#f44', borderWidth: 1 }}
-                >
-                  <Feather name='log-out' size={20} color='#f44' />
-                </TouchableOpacity>
-              </View>
-
-            </View>
+            <HeroDrawerContent
+              activeRoute={activeRoute}
+              avatarUrl={profile?.images?.[0]?.url ?? firebaseUser.photoURL}
+              displayName={profile?.display_name ?? firebaseUser.displayName ?? 'Luke'}
+              isGoogleConnected={Boolean(firebaseUser)}
+              isSpotifyConnected={isSpotifyConnected}
+              isDark={isDark}
+              onLogout={handleLogout}
+              onSpotifyPress={() => {
+                if (isReady && !isSpotifyConnected) login();
+              }}
+              onThemePress={(event) =>
+                toggleTheme({
+                  animationType: isDark ? AnimationType.CircularInverted : AnimationType.Circular,
+                  touchX: event.nativeEvent.pageX,
+                  touchY: event.nativeEvent.pageY,
+                })
+              }
+            />
           )}
           screenOptions={{
-            headerTitle: () => null,
-            headerBackground: () => null,
-            headerBackgroundContainerStyle: { backgroundColor: background },
+            headerShown: false,
             drawerType: 'front',
+            overlayColor: 'rgba(0,0,0,0.55)',
+            drawerStyle: {
+              width: 330,
+              backgroundColor: '#070a0f',
+            },
           }}
         >
           <Drawer.Screen

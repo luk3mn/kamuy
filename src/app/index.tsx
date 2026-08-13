@@ -1,19 +1,15 @@
-
-import { AnimatedIcon } from '@/components/animated-icon';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Text } from 'react-native';
+import { HomeDashboard } from '@/components/home-dashboard';
+import { useMe } from '@/hooks/api/use-auth';
+import { getAuth } from '@react-native-firebase/auth';
 
 export default function HomeScreen() {
+  const { data: profile } = useMe();
+  const firebaseUser = getAuth().currentUser;
+
   return (
-    <ThemedView className='flex-1 items-center justify-center'>
-      <ThemedView className='flex-1 items-center justify-center gap-2'>
-        <AnimatedIcon />
-        <ThemedText type="title" className='text-center'>
-          Bem Vindo ao&nbsp;Kamuy
-        </ThemedText>
-        <Text className='text-4xl text-center text-white'>Kamuy</Text>
-      </ThemedView>
-    </ThemedView>
+    <HomeDashboard
+      avatarUrl={profile?.images?.[0]?.url ?? firebaseUser?.photoURL}
+      displayName={profile?.display_name ?? firebaseUser?.displayName ?? 'Luke'}
+    />
   );
 }
