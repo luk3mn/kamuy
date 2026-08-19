@@ -1,20 +1,16 @@
 import { useRouter } from 'expo-router';
 import {
-  BriefcaseBusiness,
   Check,
   ChevronRight,
-  CircleGauge,
   Flame,
   Gem,
   Home,
   LogOut,
   Moon,
   Music2,
-  NotebookText,
   Pencil,
-  Settings,
   Shield,
-  Sun,
+  Sun
 } from 'lucide-react-native';
 import type { ComponentType, ReactNode } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -39,11 +35,11 @@ type HeroDrawerContentProps = {
 
 const MENU_ITEMS: DrawerItem[] = [
   { icon: Home, label: "Hero's Hub", route: 'index' },
-  { icon: NotebookText, label: 'Quest Log', route: 'explore' },
-  { icon: Gem, label: 'Manifestação' },
-  { icon: BriefcaseBusiness, label: 'Inventário & Loja' },
-  { icon: CircleGauge, label: 'Ficha de Atributos' },
-  { icon: Settings, label: 'Configurações' },
+  // { icon: NotebookText, label: 'Quest Log', route: 'explore' },
+  // { icon: Gem, label: 'Manifestação' },
+  // { icon: BriefcaseBusiness, label: 'Inventário & Loja' },
+  // { icon: CircleGauge, label: 'Ficha de Atributos' },
+  // { icon: Settings, label: 'Configurações' },
 ];
 
 export function HeroDrawerContent({
