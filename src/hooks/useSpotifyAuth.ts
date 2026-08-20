@@ -5,12 +5,16 @@ import {
   makeRedirectUri,
   useAuthRequest
 } from 'expo-auth-session';
+import Constants from 'expo-constants';
 import * as WebBrowser from 'expo-web-browser';
 import { useCallback, useEffect, useRef } from 'react';
 
 WebBrowser.maybeCompleteAuthSession();
 
 const CLIENT_ID = process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_ID!;
+
+const APP_SCHEME = Constants.expoConfig?.scheme as string;
+console.log('[SpotifyAuth] module loaded, scheme:', APP_SCHEME);
 
 const SCOPES = [
   'user-read-private',
@@ -41,7 +45,7 @@ export function useSpotifyAuth(): UseSpotifyAuthReturn {
     isSpotifyTokenExpired,
   } = useAuthStore();
 
-  const redirectUri = makeRedirectUri({ scheme: 'kamuy', path: 'callback' });
+  const redirectUri = makeRedirectUri({ scheme: APP_SCHEME, path: 'callback' });
 
   const [request, response, promptAsync] = useAuthRequest(
     {
