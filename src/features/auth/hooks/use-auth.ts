@@ -1,0 +1,33 @@
+import { authService, userService } from '@/features/auth/api/auth.service';
+import { useAuthStore } from '@/features/auth/store/auth.store';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { useRouter } from 'expo-router';
+
+export const userKeys = {
+  me: ['user', 'me'] as const,
+};
+
+export function useMe() {
+  const accessToken = useAuthStore((s) => s.spotifyAccessToken);
+
+  return useQuery({
+    queryKey: userKeys.me,
+    queryFn: async () => {
+      const { data, error } = await userService.getMe();
+      if (error) throw new Error(error);
+      return data;
+    },
+    enabled: !!accessToken,
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useSignIn() {
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: authService.signIn,
+    onSuccess: () => router.replace('/'),
+    onError: (error: Error) => console.error('Sign in error:', error.message),
+  });
+}
