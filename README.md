@@ -85,23 +85,76 @@ Para realizar a análise sem sobrecarregar a cota da API, o app utiliza dois end
 - **`acousticness` (Nível Acústico):** Identifica instrumentos orgânicos vs elétricos/sintéticos.
 - **`tempo` (BPM):** Batidas por minuto da faixa.
 
-### 🧮 4.2. Algoritmo de Cálculo do Humor (Aura Engine)
+### 🧮 4.2. Algoritmo de Cálculo do Humor (Aura Engine v1.1)
 
-O app calcula a média ponderada de `valence`, `energy` e `acousticness` das últimas músicas ouvidas para mapear o humor em **4 Auras Principais**:
+O app calcula o humor a partir do conjunto das músicas ouvidas no dia, e não apenas da última faixa tocada. A lógica usa a média de `valence` e `energy` de todas as músicas recentes para gerar uma aura que representa o estado emocional atual do usuário.
+
+#### Fluxo atual
+
+1. `GET /v1/me/player/recently-played?limit=20`
+   - busca as faixas recentes do usuário;
+2. extrai os `track_ids`;
+3. chama `GET /v1/audio-features?ids={track_ids}`;
+4. mapeia o retorno para `[{ valence, energy }]`;
+5. calcula a média do dia;
+6. classifica `valence` e `energy` em `low | mid | high`;
+7. escolhe a aura no grid 3x3 e devolve o `buffActive` e `statBoost` correspondentes.
+
+Isso torna a aura estável, sensível ao humor do dia e mais realista do que um único ponto de análise.
+
+#### Grade de decisão atual (3x3)
 
 ```text
-                            [ ENERGY ]
-                                │
-        Aura Guerreira         │        Aura Entusiasta
-        (Foco / Treino)        │        (Alegria / Fluxo)
-                                │
-─── LOW VALENCE ────────────────┼──────────────── HIGH VALENCE ───
-                                │
-        Aura Sombria           │        Aura de Harmonia
-        (Introspecção)         │        (Manifestação / Paz)
-                                │
-                          [ LOW ENERGY ]
+                         [ ENERGY ]
+                              │
+             Baixa (0–0.4)   Média (0.4–0.6)   Alta (0.6–1.0)
+                  ┌──────────────────────────────────────────────┐
+      Alta       │ Aura Guerreira       Aura do Bravo      Aura Entusiasta │
+      Valence    │ (Foco / Treino)      (Driven / Energia)  (Fluxo / Alegria) │
+                  ├──────────────────────────────────────────────┤
+      Média      │ Aura Sombria Leve    Aura do Viajante   Aura de Harmonia Leve │
+      Valence    │ (Reflexão)           (Equilíbrio)       (Paz / Levante) │
+                  ├──────────────────────────────────────────────┤
+      Baixa      │ Aura Sombria         Aura Serena        Aura de Harmonia │
+      Valence    │ (Introspecção)       (Calma / Sereno)   (Manifestação / Paz) │
+                  └──────────────────────────────────────────────┘
 ```
+
+#### Regras de classificação
+
+- `valence < 0.4` => `low`
+- `0.4 <= valence <= 0.6` => `mid`
+- `valence > 0.6` => `high`
+
+Mesma lógica para `energy`.
+
+#### Exemplo de cálculo
+
+```ts
+const avgValence = features.reduce((sum, f) => sum + f.valence, 0) / features.length;
+const avgEnergy = features.reduce((sum, f) => sum + f.energy, 0) / features.length;
+
+const key = `${classify(avgValence)}-${classify(avgEnergy)}`;
+```
+
+#### Resultado esperado
+
+A aura final devolve um payload no formato:
+
+```ts
+{
+  name: 'Aura de Harmonia',
+  dominantSentiment: 'positive_acoustic',
+  buffActive: 'spirit_boost_10',
+  statBoost: { spirit: 5 }
+}
+```
+
+Esse resultado é o que alimenta o card de humor da home e o estado `currentAura` do perfil do usuário.
+
+#### Observação de produto
+
+A decisão atual é manter o humor como um snapshot do dia, e não apenas da última música. Isso evita ruídos causados por uma faixa isolada e melhor representa o estado emocional do usuário ao longo do período auditivo do dia.
 
 ---
 
@@ -218,10 +271,17 @@ O app calcula a média ponderada de `valence`, `energy` e `acousticness` das úl
     "lastSyncedAt": "2026-08-05T09:00:00Z"
   },
   "currentAura": {
-    "auraName": "Aura de Harmonia & Manifestação",
+    "auraName": "Aura de Harmonia",
     "dominantSentiment": "positive_acoustic",
     "buffActive": "spirit_boost_10",
-    "calculatedAt": "2026-08-05"
+    "auraLevel": "high",
+    "avgValence": 0.78,
+    "avgEnergy": 0.71,
+    "statBoost": {
+      "spirit": 5
+    },
+    "songsAnalyzed": 18,
+    "calculatedAt": "2026-08-05T09:00:00Z"
   }
 }
 ```
