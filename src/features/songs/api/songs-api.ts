@@ -1,32 +1,15 @@
-// services/reccobeatsService.ts
-const RECCOBEATS_BASE_URL = 'https://api.reccobeats.com/v1';
-const BATCH_SIZE = 15;
+import { apiClient } from "@/api/client";
+import { RECCOBEATS_API_URL } from "@/api/endpoints";
+import { SpotifyCursorPaginatedResponse } from "@/features/auth/types";
+import { BATCH_SIZE, chunk, extractSpotifyId } from "../lib/map-reccobeats";
+import { AudioFeatures, ReccoBeatsResponse, SpotifyRecentlyPlayedItem } from "../types";
 
-type AudioFeatures = {
-  acousticness: number;
-  danceability: number;
-  energy: number;
-  instrumentalness: number;
-  liveness: number;
-  loudness: number;
-  speechiness: number;
-  tempo: number;
-  valence: number;
+export const playerService = {
+  getRecentlyPlayedTracks: () =>
+    apiClient.get<SpotifyCursorPaginatedResponse<SpotifyRecentlyPlayedItem>>(
+      '/me/player/recently-played'
+    ),
 };
-
-type ReccoBeatsResponse = {
-  content: Array<AudioFeatures & { id: string; href: string }>;
-};
-
-function extractSpotifyId(href: string): string {
-  return href.split('/track/')[1] ?? href;
-}
-
-function chunk<T>(arr: T[], size: number): T[][] {
-  return Array.from({ length: Math.ceil(arr.length / size) }, (_, i) =>
-    arr.slice(i * size, i * size + size)
-  );
-}
 
 export async function getAudioFeatures(
   spotifyTrackIds: string[]
@@ -35,7 +18,7 @@ export async function getAudioFeatures(
   const result: Record<string, AudioFeatures> = {};
 
   for (const batch of batches) {
-    const url = `${RECCOBEATS_BASE_URL}/audio-features?ids=${batch.join(',')}`;
+    const url = `${RECCOBEATS_API_URL}/audio-features?ids=${batch.join(',')}`;
     const response = await fetch(url);
 
     if (!response.ok) {

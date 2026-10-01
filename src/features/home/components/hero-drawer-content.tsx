@@ -1,16 +1,16 @@
 import { useRouter } from 'expo-router';
 import {
-  Check,
-  ChevronRight,
-  Flame,
-  Gem,
-  Home,
-  LogOut,
-  Moon,
-  Music2,
-  Pencil,
-  Shield,
-  Sun
+    Check,
+    ChevronRight,
+    Flame,
+    Gem,
+    Home,
+    LogOut,
+    Moon,
+    Music2,
+    Pencil,
+    Shield,
+    Sun
 } from 'lucide-react-native';
 import type { ComponentType, ReactNode } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -18,7 +18,7 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 type DrawerItem = {
   icon: ComponentType<{ color: string; size: number; strokeWidth?: number }>;
   label: string;
-  route?: 'index' | 'explore';
+  route?: 'index';
 };
 
 type HeroDrawerContentProps = {
@@ -55,9 +55,10 @@ export function HeroDrawerContent({
 }: HeroDrawerContentProps) {
   const router = useRouter();
 
-  const handleNavigate = (route?: string) => {
-    if (!route) return;
-    router.push(route === 'index' ? '/' : '/explore');
+  const handleNavigate = (route?: DrawerItem['route']) => {
+    if (route === 'index') {
+      router.push('/');
+    }
   };
 
   return (

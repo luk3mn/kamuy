@@ -29,3 +29,20 @@ export interface SpotifyRecentlyPlayedItem {
     uri: string;
   } | null;
 }
+
+// RECCOBEATS
+export type AudioFeatures = {
+  acousticness: number;
+  danceability: number;
+  energy: number;
+  instrumentalness: number;
+  liveness: number;
+  loudness: number;
+  speechiness: number;
+  tempo: number;
+  valence: number;
+};
+
+export type ReccoBeatsResponse = {
+  content: Array<AudioFeatures & { id: string; href: string }>;
+};

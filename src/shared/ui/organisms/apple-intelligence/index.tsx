@@ -1,26 +1,25 @@
 // @ts-check
+import {
+    Canvas,
+    Fill,
+    ImageShader,
+    makeImageFromView,
+    Shader,
+    type SkImage,
+} from "@shopify/react-native-skia";
 import React, { memo, useCallback, useRef, useState } from "react";
 import { StyleSheet, View, ViewStyle } from "react-native";
-import {
-  Canvas,
-  Fill,
-  Shader,
-  ImageShader,
-  makeImageFromView,
-  type SkImage,
-} from "@shopify/react-native-skia";
-import {
-  useSharedValue,
-  withTiming,
-  Easing,
-  useAnimatedStyle,
+import Animated, {
+    Easing,
+    useAnimatedStyle,
+    useSharedValue,
+    withTiming,
 } from "react-native-reanimated";
-import Animated from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
-import { SiriContext } from "./context";
 import { SHADER_SOURCE } from "./conf";
-import { useSiriUniforms } from "./use-siri-uniforms";
+import { SiriContext } from "./context";
 import type { IAppleIntelligenceProvider, ISiriToggleOptions } from "./types";
+import { useSiriUniforms } from "./use-siri-uniforms";
 
 export const SiriProvider: React.FC<IAppleIntelligenceProvider> &
   React.FunctionComponent<IAppleIntelligenceProvider> = memo<
@@ -195,5 +194,5 @@ export default memo<
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  overlay: { ...StyleSheet.absoluteFillObject, zIndex: 9999 },
+  overlay: { ...StyleSheet.absoluteFill, zIndex: 9999 },
 });

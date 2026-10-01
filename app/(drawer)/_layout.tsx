@@ -1,8 +1,8 @@
-import { HeroDrawerContent } from '@/features/home/components/hero-drawer-content';
-import { useMe } from '@/features/auth/hooks/use-auth';
 import { signOutGoogle } from '@/features/auth/api/google-auth';
+import { useMe } from '@/features/auth/hooks/use-auth';
 import { useAuthStore } from '@/features/auth/store/auth.store';
 import { useSpotifyAuthContext } from '@/features/auth/store/spotify-auth.context';
+import { HeroDrawerContent } from '@/features/home/components/hero-drawer-content';
 import { useTheme as useThemeSwitch } from '@/shared/ui/organisms/theme-switch/hooks';
 import { AnimationType } from '@/shared/ui/organisms/theme-switch/types';
 import { getAuth } from '@react-native-firebase/auth';
@@ -66,7 +66,6 @@ export default function DrawerLayout() {
       }}
     >
       <Drawer.Screen name="index" options={{ title: "Hero's Hub" }} />
-      <Drawer.Screen name="explore" options={{ title: 'Quest Log' }} />
     </Drawer>
   );
 }
